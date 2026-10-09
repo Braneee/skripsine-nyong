@@ -1,0 +1,480 @@
+TUGAS AKHIR I
+REKOMENDASI PRIORITAS DISTRIBUSI BANTUAN LOGISTIK BENCANA MENGGUNAKAN METODE EDAS DAN ALGORITMA HAVERSINE
+Diajukan untuk memenuhi salah satu syarat
+Mengerjakan dan menempuh Tugas Akhir II
+Disusun Oleh:
+Nama: Gibran Rais Hilmy Iskandar
+NIM: A11.2023.15270
+Program Studi: Teknik Informatika – S1
+FAKULTAS ILMU KOMPUTER
+UNIVERSITAS DIAN NUSWANTORO
+SEMARANG
+2026
+DAFTAR ISI
+DAFTAR ISIii
+DAFTAR TABELv
+DAFTAR GAMBARv
+RINGKASANvi
+BAB I PENDAHULUAN7
+1.1 Latar Belakang7
+1.2 Rumusan Masalah11
+1.3 Batasan Masalah11
+1.4 Tujuan Penelitian13
+1.5 Manfaat Penelitian13
+BAB II LANDASAN TEORI15
+2.1 Tinjauan Studi15
+2.2 Tinjauan Pustaka19
+2.2.1 Bencana19
+2.2.2 Logistik Kemanusiaan19
+2.2.3 Distribusi Bantuan Logistik Bencana20
+2.2.4 Sistem Pendukung Keputusan21
+2.2.5 Multi-Criteria Decision Making21
+2.2.6 Kriteria Prioritas Distribusi Bantuan23
+2.2.7 Pembobotan Kriteria24
+2.2.8 Koordinat Geografis25
+2.2.9 Algoritma Haversine26
+2.2.10 Metode EDAS28
+2.2.11 Verifikasi Perhitungan32
+2.2.12 Analisis Sensitivitas33
+2.2.13 Metode Pengembangan Sistem Waterfall34
+2.3 Kerangka Pemikiran36
+BAB III METODE PENELITIAN38
+3.1 Metode Pengumpulan Data38
+3.1.1 Studi Literatur38
+3.1.2 Kajian Regulasi dan Standar Logistik Kebencanaan39
+3.1.3 Studi Dokumentasi Laporan Bencana Publik40
+3.1.4 Ekstraksi Data Geospasial Digital40
+3.1.5 Pra-pemrosesan dan Pemeriksaan Integritas Data41
+3.1.6 Konstruksi Dataset Pengujian Kasus Riil41
+3.2 Analisis Data42
+3.3 Metode yang Diusulkan44
+3.4 Metode Pengujian46
+DAFTAR PUSTAKA48
+DAFTAR TABEL
+Tabel 1. State-of-the-art13
+Tabel 2. Kerangka Pemikiran34
+Tabel 3. Definisi operasional kriteria36
+Tabel 4. Rancangan skala tingkat urgensi37
+Tabel 5. Rancangan data penelitian37
+Tabel 6. Rancangan pengujian40
+DAFTAR GAMBAR
+Gambar 1. Alur metode yang diusulkan45
+RINGKASAN
+Distribusi bantuan logistik pada kondisi bencana perlu dilakukan secara tepat karena beberapa lokasi terdampak dapat mengajukan permintaan bantuan secara bersamaan, sedangkan sumber daya yang tersedia terbatas. Penelitian ini bertujuan menghasilkan rekomendasi urutan prioritas lokasi penerima bantuan dengan mempertimbangkan jumlah masyarakat terdampak yang membutuhkan bantuan logistik, tingkat urgensi kebutuhan bantuan, dan jarak lokasi terdampak dari sumber bantuan. Jarak geografis dihitung menggunakan algoritma Haversine berdasarkan koordinat latitude dan longitude sumber bantuan serta lokasi terdampak. Selanjutnya, seluruh alternatif lokasi dievaluasi menggunakan metode Evaluation Based on Distance from Average Solution (EDAS). Metode tersebut membandingkan nilai setiap alternatif dengan nilai rata-rata berdasarkan kriteria dan bobot yang telah ditetapkan, kemudian menghasilkan nilai akhir serta urutan prioritas. Pengujian dilakukan dengan membandingkan hasil perhitungan sistem dengan perhitungan manual dan menganalisis sensitivitas perubahan bobot kriteria terhadap hasil peringkat. Penelitian ini diharapkan menghasilkan sistem pendukung keputusan yang mampu memberikan rekomendasi prioritas secara terstruktur, terukur, dan dapat ditelusuri. Rekomendasi yang dihasilkan tidak menggantikan keputusan petugas, tetapi menjadi informasi pendukung dalam menentukan lokasi yang perlu didahulukan dalam distribusi bantuan logistik bencana.
+Kata kunci: bantuan logistik bencana, EDAS, Haversine, prioritas distribusi, sistem pendukung keputusan.
+BAB IPENDAHULUAN
+1.1 Latar Belakang
+Bencana merupakan peristiwa yang dapat mengancam kehidupan masyarakat, menimbulkan korban jiwa, kerusakan lingkungan, kerugian harta benda, serta mengganggu pemenuhan kebutuhan dasar masyarakat terdampak. Buku Data Bencana Indonesia Tahun 2024 mencatat sebanyak 540 orang meninggal dunia, 63 orang hilang, 11.531 orang mengalami luka-luka, serta 8.136.271 orang menderita dan mengungsi akibat berbagai kejadian bencana di Indonesia sepanjang tahun 2024 (PDSI Pusdatinkom BNPB, 2025). Data tersebut menunjukkan bahwa kejadian bencana dapat menimbulkan kebutuhan penanganan dalam skala besar, termasuk kebutuhan terhadap makanan, air minum, obat-obatan, pakaian, selimut, dan kebutuhan dasar lainnya.
+Distribusi bantuan logistik merupakan salah satu kegiatan penting dalam penanganan bencana karena berhubungan dengan pemenuhan kebutuhan dasar masyarakat terdampak. Berdasarkan Peraturan Kepala Badan Nasional Penanggulangan Bencana Nomor 18 Tahun 2010, distribusi bantuan logistik perlu mengutamakan skala prioritas. Pada masa tanggap darurat, perencanaan distribusi mengacu pada hasil kaji cepat kebutuhan dan kemudahan akses, sedangkan pemilihan moda distribusi mempertimbangkan faktor geografis, keamanan, kondisi lingkungan, cuaca, serta ketersediaan sarana dan prasarana pendukung (Badan Nasional Penanggulangan Bencana, 2010). Oleh karena itu, proses distribusi tidak hanya berkaitan dengan pengiriman bantuan, tetapi juga dengan penentuan lokasi yang perlu dilayani terlebih dahulu ketika terdapat beberapa lokasi terdampak dengan kondisi yang berbeda.
+Distribusi bantuan pada kondisi bencana memiliki karakteristik yang berbeda dengan distribusi barang pada kondisi normal. Permintaan bantuan dari beberapa lokasi dapat diterima dalam waktu yang relatif bersamaan, sedangkan jumlah bantuan, kendaraan, petugas, dan kemampuan distribusi dapat mengalami keterbatasan. Selain itu, informasi mengenai kondisi lokasi terdampak dapat berubah seiring perkembangan bencana. Literatur mengenai logistik kemanusiaan menunjukkan bahwa penentuan prioritas distribusi melibatkan berbagai kriteria dan pengambil keputusan sehingga membutuhkan pendekatan yang terstruktur dan transparan (Alturki & Lee, 2024; Carnero Quispe et al., 2024).
+Dalam kondisi tersebut, distribusi bantuan yang hanya didasarkan pada urutan masuknya permintaan atau kedekatan lokasi belum tentu menghasilkan prioritas yang sesuai dengan kebutuhan masyarakat terdampak. Lokasi dengan jumlah masyarakat terdampak yang besar belum tentu memiliki tingkat urgensi tertinggi. Sebaliknya, lokasi yang paling dekat dengan sumber bantuan belum tentu menjadi lokasi yang paling membutuhkan bantuan. Oleh karena itu, diperlukan proses evaluasi yang mempertimbangkan beberapa kriteria secara bersamaan agar setiap lokasi dapat dibandingkan berdasarkan kondisi kebutuhannya.
+Permasalahan tersebut teramati secara nyata pada dinamika penanganan bencana banjir tahunan di wilayah administratif Kota Semarang. Berdasarkan publikasi Badan Penanggulangan Bencana Daerah (BPBD) Kota Semarang, banjir kerap menggenangi kawasan padat penduduk secara simultan (seperti kawasan Kecamatan Genuk, Kaligawe, dan Gayamsari), sehingga memicu masuknya permohonan bantuan logistik darurat secara bersamaan dari berbagai titik posko pengungsian mandiri maupun terpusat. Keterbatasan armada transportasi dan personel penanganan logistik di gudang BPBD menuntut adanya mekanisme evaluasi multi-kriteria yang cepat, terstruktur, dan transparan untuk menentukan posko pengungsian mana yang mendesak untuk dilayani terlebih dahulu.
+Penelitian ini merencanakan penggunaan tiga kriteria utama, yaitu jumlah masyarakat terdampak yang membutuhkan bantuan logistik, tingkat urgensi kebutuhan bantuan logistik, dan jarak geografis dari sumber bantuan aktif ke lokasi terdampak. Jumlah masyarakat terdampak yang membutuhkan bantuan logistik digunakan untuk menggambarkan skala penerima bantuan pada setiap lokasi. Tingkat urgensi kebutuhan bantuan logistik digunakan untuk menggambarkan tingkat kemendesakan pemenuhan kebutuhan, sedangkan jarak geografis digunakan untuk menggambarkan kedekatan lokasi terdampak dengan sumber bantuan aktif. Ketiga kriteria tersebut perlu memiliki definisi operasional, skala penilaian, dan bobot yang jelas agar hasil pemeringkatan dapat dipertanggungjawabkan.
+Nilai jarak dalam penelitian ini diperoleh menggunakan algoritma Haversine. Algoritma Haversine menghitung jarak antara dua titik pada permukaan bumi berdasarkan koordinat lintang (latitude) dan bujur (longitude). Penelitian Sutedi et al. (2024) menunjukkan bahwa perhitungan jarak Haversine dapat digunakan untuk mengolah kedekatan geografis lokasi berdasarkan data koordinat. Dalam penelitian ini, algoritma Haversine digunakan untuk menghitung jarak dari sumber bantuan yang aktif menuju setiap lokasi terdampak. Hasil perhitungan tersebut selanjutnya digunakan sebagai nilai pada kriteria jarak.
+Jarak yang dihasilkan oleh algoritma Haversine merupakan jarak lingkaran besar pada permukaan bumi dengan pendekatan bumi berbentuk bola, bukan jarak perjalanan berdasarkan jaringan jalan. Oleh karena itu, hasil perhitungan Haversine tidak digunakan untuk menentukan rute kendaraan maupun memperkirakan waktu tempuh. Jika tersedia beberapa sumber bantuan, proses penghitungan dan pemeringkatan dilakukan berdasarkan satu sumber bantuan yang dipilih atau diaktifkan untuk satu proses evaluasi.
+Ketiga kriteria yang digunakan memiliki karakteristik dan satuan yang berbeda sehingga diperlukan pendekatan pengambilan keputusan multikriteria (Multi-Criteria Decision-Making atau MCDM). Metode yang digunakan dalam penelitian ini adalah Evaluation Based on Distance from Average Solution (EDAS). Metode EDAS mengevaluasi alternatif berdasarkan jarak positif dan jarak negatif terhadap nilai rata-rata setiap kriteria, kemudian mengolahnya menggunakan bobot untuk menghasilkan nilai penilaian akhir dan urutan alternatif (Keshavarz Ghorabaee et al., 2015). EDAS dipilih karena mekanisme tersebut sesuai dengan kebutuhan penelitian untuk mengevaluasi lokasi terdampak berdasarkan kombinasi kriteria benefit dan cost, yaitu jumlah masyarakat yang membutuhkan bantuan logistik, tingkat urgensi kebutuhan bantuan, dan jarak geografis. Tahapan perhitungannya juga memungkinkan nilai rata-rata, jarak positif dan negatif, jumlah terbobot, serta nilai akhir ditampilkan sehingga proses pemeringkatan dapat ditelusuri. Dalam penelitian ini, EDAS klasik diterapkan untuk menghasilkan rekomendasi urutan prioritas lokasi penerima bantuan, bukan untuk mengembangkan metode baru atau membuktikan keunggulannya dibandingkan seluruh metode pengambilan keputusan multikriteria lainnya.
+Algoritma Haversine dan metode EDAS memiliki fungsi yang berbeda tetapi saling melengkapi. Algoritma Haversine menghasilkan nilai jarak geografis dari sumber bantuan aktif ke lokasi terdampak. Selanjutnya, metode EDAS mengolah nilai tersebut bersama jumlah masyarakat terdampak yang membutuhkan bantuan logistik dan tingkat urgensi kebutuhan bantuan logistik untuk menghasilkan urutan prioritas lokasi. Tinjauan mengenai logistik kemanusiaan menunjukkan bahwa pendekatan pengambilan keputusan multikriteria telah digunakan untuk membantu penentuan prioritas dalam kegiatan kemanusiaan (Alturki & Lee, 2024; Carnero Quispe et al., 2024). Sementara itu, penelitian Sutedi et al. (2024) memperlihatkan penerapan informasi posisi geografis pada konteks wilayah terdampak bencana. Berdasarkan literatur tersebut, penelitian ini berfokus pada penerapan terintegrasi Haversine dan EDAS untuk menghasilkan rekomendasi prioritas lokasi penerima bantuan. Kontribusi penelitian terletak pada penerapan dan evaluasi kedua metode pada konteks distribusi bantuan yang diteliti, bukan pada pengembangan algoritma baru.
+Agar hasil rekomendasi dapat diperiksa, penelitian ini perlu melakukan verifikasi terhadap perhitungan Haversine dan tahapan EDAS menggunakan perhitungan manual atau contoh data terkontrol.  Analisis sensitivitas terhadap perubahan bobot kriteria akan dilakukan untuk mengetahui perubahan nilai akhir dan urutan prioritas ketika tingkat kepentingan kriteria berubah. Pengujian tersebut diperlukan karena bobot kriteria dapat memengaruhi nilai akhir dan urutan alternatif yang dihasilkan.
+Sistem yang dikembangkan tidak dimaksudkan untuk menggantikan keputusan petugas distribusi bantuan atau pihak yang berwenang dalam penanganan bencana. Hasil sistem berupa rekomendasi urutan prioritas yang dapat digunakan sebagai informasi pendukung pengambilan keputusan. Kondisi lapangan yang belum menjadi bagian dari kriteria, seperti aksesibilitas jalan, kapasitas kendaraan, ketersediaan stok, cuaca, keamanan, dan perubahan kondisi bencana, tetap perlu dipertimbangkan oleh petugas sebelum bantuan didistribusikan.
+Berdasarkan uraian tersebut, penelitian ini dilakukan dengan judul "Rekomendasi Prioritas Distribusi Bantuan Logistik Bencana Menggunakan Metode EDAS dan Algoritma Haversine." Penelitian difokuskan pada perhitungan jarak geografis dari sumber bantuan aktif ke lokasi terdampak menggunakan algoritma Haversine serta pemeringkatan lokasi terdampak menggunakan metode EDAS berdasarkan jumlah masyarakat terdampak yang membutuhkan bantuan logistik, tingkat urgensi kebutuhan bantuan logistik, dan jarak geografis tersebut. Hasil penelitian diharapkan dapat menghasilkan rekomendasi prioritas yang terstruktur, transparan, dan dapat digunakan sebagai informasi pendukung bagi petugas dalam menentukan lokasi yang perlu dilayani terlebih dahulu.
+1.2 Rumusan Masalah
+Berdasarkan latar belakang yang telah diuraikan, rumusan masalah dalam penelitian ini adalah:
+Bagaimana menetapkan dan memodelkan kriteria serta bobot yang digunakan untuk menentukan prioritas distribusi bantuan logistik pada lokasi terdampak bencana? 
+Bagaimana menerapkan algoritma Haversine untuk menghitung jarak geografis antara sumber bantuan aktif dan lokasi terdampak berdasarkan koordinat latitude dan longitude?
+Bagaimana menerapkan metode EDAS dengan memanfaatkan hasil perhitungan jarak Haversine untuk menghasilkan rekomendasi urutan prioritas lokasi terdampak? 
+Bagaimana memverifikasi hasil perhitungan Haversine dan EDAS serta menganalisis pengaruh perubahan bobot terhadap hasil pemeringkatan?
+1.3 Batasan Masalah
+Agar penelitian memiliki ruang lingkup yang jelas, batasan masalah yang ditetapkan adalah: 
+Penelitian dibatasi pada studi kasus penanganan darurat bencana banjir di wilayah administratif Kota Semarang menggunakan data titik posko dan informasi kebencanaan yang dipublikasikan pada website resmi Badan Penanggulangan Bencana Daerah (BPBD) Kota Semarang.
+Alternatif yang dievaluasi merupakan beberapa lokasi terdampak yang membutuhkan bantuan logistik dalam objek atau studi kasus tersebut. 
+Kriteria yang digunakan meliputi jumlah masyarakat terdampak yang membutuhkan bantuan logistik, tingkat urgensi kebutuhan bantuan logistik, dan jarak geografis dari sumber bantuan aktif ke lokasi terdampak.
+Jumlah masyarakat terdampak yang membutuhkan bantuan logistik dan tingkat urgensi kebutuhan bantuan logistik merupakan kriteria benefit, sedangkan jarak geografis dari sumber bantuan aktif ke lokasi terdampak merupakan kriteria cost. 
+Dalam satu proses pemeringkatan digunakan satu sumber bantuan aktif yang dipilih oleh petugas. 
+Jarak dihitung menggunakan algoritma Haversine berdasarkan koordinat latitude dan longitude sumber bantuan serta lokasi terdampak. 
+Jarak Haversine merupakan jarak geografis dan tidak menggambarkan jarak jalan, kondisi akses, ataupun waktu tempuh kendaraan. 
+Metode EDAS digunakan untuk menghasilkan nilai akhir dan urutan prioritas lokasi terdampak. 
+Penelitian tidak membahas optimasi rute, kondisi jalan secara langsung, pemilihan kendaraan, pengelolaan persediaan, dan penentuan jumlah bantuan yang dialokasikan. 
+Hasil sistem merupakan rekomendasi pendukung keputusan dan tidak menggantikan keputusan petugas atau pihak yang berwenang. 
+Verifikasi dilakukan dengan membandingkan hasil perhitungan sistem dengan perhitungan pembanding, sedangkan analisis sensitivitas dilakukan melalui perubahan bobot kriteria. 
+Hasil penelitian berlaku berdasarkan data, kriteria, bobot, dan skenario yang digunakan dalam penelitian. 
+1.4 Tujuan Penelitian
+Berdasarkan rumusan masalah yang telah ditetapkan, tujuan penelitian ini adalah: 
+Menetapkan dan memodelkan kriteria serta bobot yang digunakan untuk menentukan prioritas distribusi bantuan logistik pada lokasi terdampak bencana. 
+Menerapkan algoritma Haversine untuk menghitung jarak geografis antara sumber bantuan aktif dan lokasi terdampak berdasarkan koordinat latitude dan longitude. 
+Menerapkan metode EDAS dengan memanfaatkan hasil perhitungan jarak Haversine untuk menghasilkan rekomendasi urutan prioritas lokasi terdampak. 
+Memverifikasi hasil perhitungan Haversine dan EDAS serta menganalisis pengaruh perubahan bobot terhadap hasil pemeringkatan. 
+1.5 Manfaat Penelitian
+Manfaat yang diharapkan dari pelaksanaan penelitian ini adalah sebagai berikut:
+Membantu petugas atau pihak pengelola bantuan memperoleh informasi pendukung berupa rekomendasi urutan prioritas lokasi terdampak berdasarkan jumlah masyarakat terdampak yang membutuhkan bantuan logistik, tingkat urgensi kebutuhan bantuan logistik, dan jarak geografis dari sumber bantuan aktif ke lokasi terdampak.
+Memberikan proses penilaian prioritas yang lebih terstruktur dan dapat ditelusuri berdasarkan data masukan, kriteria, bobot, dan tahapan perhitungan yang digunakan.
+Memberikan penerapan teknis algoritma Haversine untuk memperoleh nilai jarak geografis serta metode EDAS untuk melakukan evaluasi dan pemeringkatan lokasi terdampak berdasarkan beberapa kriteria.
+Memberikan informasi mengenai pengaruh perubahan bobot kriteria terhadap hasil pemeringkatan melalui analisis sensitivitas sehingga pengguna dapat memahami tingkat ketergantungan rekomendasi terhadap konfigurasi bobot yang digunakan.
+Menjadi referensi bagi penelitian berikutnya dalam pengembangan sistem pendukung keputusan distribusi bantuan dengan menambahkan kriteria, sumber bantuan, data kondisi jalan, jarak berbasis jaringan jalan, waktu tempuh, pengelolaan persediaan, alokasi bantuan, atau optimasi rute distribusi.
+BAB IILANDASAN TEORI
+2.1 Tinjauan Studi
+Tinjauan studi membahas penelitian terdahulu mengenai pengambilan keputusan multikriteria, logistik kemanusiaan, dan pemanfaatan informasi geografis dalam penanganan bencana. Perbandingan masalah, metode, dan hasil penelitian disajikan pada Tabel 1 sebagai dasar untuk menjelaskan posisi penelitian ini.
+Tabel 1. State-of-the-art
+No
+Judul
+Masalah
+Metode
+Hasil
+1
+Location Based Disaster Response Prioritization Using AHP and GIS: Prioritas Respon Bencana Berbasis Lokasi Menggunakan AHP dan GIS (Kenap et al., 2026) 
+Penentuan prioritas respons bencana di BPBD Kabupaten Minahasa masih bergantung pada penilaian cepat dan pertimbangan petugas serta belum mengintegrasikan faktor spasial secara terstruktur. 
+Analytic Hierarchy Process (AHP), Geographic Information System (GIS), perbandingan berpasangan, dan pengujian konsistensi. 
+Sistem menghasilkan klasifikasi prioritas berdasarkan tingkat keparahan, penduduk terdampak, luas wilayah terdampak, aksesibilitas, dan potensi eskalasi. Hasil prioritas juga ditampilkan melalui peta interaktif. 
+2
+Stability Analysis of Multi-Criteria Decision Making Techniques for Relief Centre Location Selection: A Safety-Centric Relocation Model with Cost Considerations (Bhakuni et al., 2025) 
+Pemilihan lokasi pusat bantuan pascabencana membutuhkan pertimbangan keselamatan, biaya, layanan darurat, rute, titik transit, dan fasilitas kesehatan secara bersamaan. 
+Perbandingan enam metode MCDM, termasuk EDAS, menggunakan lima metode pembobotan serta analisis kestabilan hasil. 
+Penelitian menghasilkan pemeringkatan kandidat pusat bantuan dan menunjukkan pentingnya membandingkan kestabilan hasil pada beberapa metode pemeringkatan dan pembobotan. 
+3
+Stratified Delivery Aid Plans for Humanitarian Aid Distribution Centre Selection (Nawazish et al., 2022) 
+Pemilihan pusat distribusi bantuan menghadapi ketidakpastian pasokan dan perlu memperhatikan prioritas barang, kecepatan pengiriman, lokasi terdampak, efisiensi, efektivitas, dan pemerataan. 
+Pendekatan MCDM berstrata, rencana distribusi bantuan, studi numerik berdasarkan Siklon Fani, dan analisis sensitivitas. 
+Model menghasilkan pemilihan pusat distribusi yang mempertimbangkan beberapa rencana bantuan. Analisis sensitivitas digunakan untuk mengamati pertukaran kepentingan antara efisiensi, efektivitas, dan pemerataan. 
+4
+Segmentasi Wilayah Terdampak Bencana Berdasarkan Fitur Geo-Posisi (Sutedi et al., 2024) 
+Informasi kejadian bencana dari berbagai sumber memerlukan pengolahan posisi geografis agar wilayah terdampak dapat dipetakan berdasarkan lokasi kejadian. 
+Haversine, pemrosesan data latitude dan longitude, n-grams, decision tree, serta prototipe DAS-Apps. 
+Prototipe dapat melakukan segmentasi wilayah terdampak berdasarkan radius posisi geografis menggunakan data gempa BMKG dan laporan masyarakat yang disimulasikan. 
+5
+New Method for Emergency Decision Making with an Integrated Regret Theory-EDAS Method in 2-Tuple Spherical Linguistic Environment (Huang et al., 2022) 
+Pengambilan keputusan darurat menghadapi keterbatasan waktu serta informasi penilaian yang tidak pasti dan bersifat linguistik. 
+Integrasi regret theory, EDAS, 2-tuple spherical linguistic term sets, pembobotan CRITIC, perbandingan metode, dan analisis sensitivitas. 
+Metode menghasilkan pemeringkatan alternatif respons keadaan darurat. Alternatif terbaik tetap berada pada peringkat pertama dalam enam skenario bobot, sedangkan urutan alternatif lainnya berubah pada beberapa skenario. 
+6
+A WebGIS-Based Location Analysis System for Disaster Mitigation in Bitung City Using Ray Casting and Haversine Formula (Dendeng et al., 2026) 
+Peta kebencanaan statis belum menyediakan analisis lokasi pengguna terhadap zona bahaya sekaligus rekomendasi titik evakuasi berbasis lokasi. 
+WebGIS, Ray Casting, Haversine, OpenSource Routing Machine, validasi jarak spasial, dan pengujian black-box. 
+Sistem dapat memproses koordinat GPS, menentukan posisi terhadap zona bencana, mencari titik evakuasi terdekat, dan melewati 11 skenario pengujian fungsional. 
+Berdasarkan Tabel 1, penelitian terdahulu telah menggunakan pendekatan multikriteria dan informasi geografis untuk mendukung keputusan kebencanaan. Kenap et al. (2026) mengintegrasikan AHP dan GIS untuk menentukan prioritas respons bencana, sedangkan Bhakuni et al. (2025) membandingkan beberapa metode MCDM, termasuk EDAS, untuk pemilihan pusat bantuan. Nawazish et al. (2022) menggunakan pendekatan multikriteria untuk memilih pusat distribusi bantuan dan melakukan analisis sensitivitas terhadap kriteria yang digunakan. Ketiga penelitian tersebut menunjukkan bahwa keputusan dalam logistik dan respons bencana melibatkan beberapa kriteria yang perlu dievaluasi secara bersamaan.
+Pemanfaatan data geografis dalam konteks kebencanaan telah dilakukan oleh Sutedi et al. (2024) dan Dendeng et al. (2026). Sutedi et al. (2024) menggunakan Haversine untuk membentuk segmentasi wilayah terdampak berdasarkan koordinat, sedangkan Dendeng et al. (2026) menggunakannya untuk mendukung pencarian titik evakuasi terdekat. Meskipun demikian, kedua penelitian tersebut tidak menggunakan hasil perhitungan Haversine sebagai salah satu kriteria dalam metode EDAS untuk memeringkat lokasi penerima bantuan.
+Huang et al. (2022) mengintegrasikan metode EDAS dengan regret theory dalam lingkungan penilaian linguistik untuk memeringkat alternatif respons keadaan darurat kesehatan masyarakat. Penelitian tersebut relevan sebagai contoh penggunaan pendekatan berbasis EDAS dalam konteks keputusan darurat. Namun, metode dan alternatif yang digunakan berbeda dengan penelitian ini. Penelitian ini menerapkan EDAS klasik untuk memeringkat lokasi penerima bantuan logistik berdasarkan jumlah masyarakat terdampak yang membutuhkan bantuan, tingkat urgensi kebutuhan, dan jarak geografis hasil perhitungan Haversine.
+Berdasarkan penelitian yang ditinjau, terdapat ruang penerapan berupa integrasi perhitungan jarak geografis dengan pemeringkatan multikriteria dalam penentuan prioritas distribusi bantuan logistik. Penelitian ini menggunakan algoritma Haversine untuk menghitung jarak geografis dari sumber bantuan aktif ke setiap lokasi terdampak. Nilai tersebut selanjutnya diproses bersama jumlah masyarakat terdampak yang membutuhkan bantuan logistik dan tingkat urgensi kebutuhan bantuan logistik menggunakan metode EDAS. Perbedaan utama penelitian ini terletak pada alternatif yang dievaluasi, yaitu lokasi penerima bantuan logistik, serta penggunaan jarak geografis hasil perhitungan Haversine sebagai salah satu kriteria dalam pemeringkatan EDAS.
+2.2 Tinjauan Pustaka
+2.2.1 Bencana
+Undang-Undang Republik Indonesia Nomor 24 Tahun 2007 menyatakan bahwa bencana merupakan peristiwa atau rangkaian peristiwa yang mengancam dan mengganggu kehidupan serta penghidupan masyarakat. Bencana dapat disebabkan oleh faktor alam, faktor nonalam, maupun faktor manusia dan dapat menimbulkan korban jiwa, kerusakan lingkungan, kerugian harta benda, serta dampak psikologis. Bencana alam merupakan bencana yang diakibatkan oleh peristiwa atau rangkaian peristiwa yang berasal dari alam, seperti gempa bumi, tsunami, letusan gunung api, banjir, kekeringan, angin topan, dan tanah longsor (Republik Indonesia, 2007).
+Penyelenggaraan penanggulangan bencana terdiri atas tahap prabencana, saat tanggap darurat, dan pascabencana. Pada tahap tanggap darurat, kegiatan penanggulangan bencana mencakup pengkajian secara cepat dan tepat terhadap lokasi, kerusakan, dan sumber daya; penentuan status keadaan darurat; penyelamatan dan evakuasi masyarakat terdampak; pemenuhan kebutuhan dasar; perlindungan terhadap kelompok rentan; serta pemulihan dengan segera prasarana dan sarana vital (Republik Indonesia, 2007). Penelitian ini ditempatkan dalam konteks pendukung keputusan pada tahap tanggap darurat, khususnya untuk memberikan rekomendasi urutan prioritas lokasi penerima bantuan logistik.
+2.2.2 Logistik Kemanusiaan
+Logistik kemanusiaan berkaitan dengan perencanaan, pelaksanaan, dan pengendalian aliran barang serta informasi dari sumber menuju masyarakat yang membutuhkan bantuan, dengan tujuan membantu mengurangi penderitaan kelompok yang berada dalam kondisi rentan. Kegiatan tersebut mencakup proses pengadaan, penyimpanan, pengangkutan, dan pendistribusian bantuan. Dalam konteks ini, kegiatan logistik diarahkan pada pemenuhan kebutuhan penerima bantuan, bukan semata-mata pada pencapaian keuntungan ekonomi (Carnero Quispe et al., 2024). 
+Alturki dan Lee (2024) menjelaskan bahwa logistik kemanusiaan mempunyai berbagai tujuan yang dapat saling bertentangan. Distribusi bantuan perlu mempertimbangkan kecepatan, biaya, pemerataan, keamanan, cakupan layanan, dan kebutuhan masyarakat. Carnero Quispe et al. (2024) juga menunjukkan bahwa model prioritas, terutama model multikriteria, banyak digunakan untuk membantu pengambil keputusan mempertimbangkan berbagai kepentingan dalam operasi kemanusiaan. 
+Pelaksanaan logistik kemanusiaan menghadapi kondisi yang dinamis, keterbatasan sumber daya, gangguan jaringan transportasi dan komunikasi, serta ketidakpastian kebutuhan bantuan. Karakteristik tersebut meningkatkan kompleksitas pengambilan keputusan karena informasi dan kondisi operasional dapat berubah selama penanganan bencana berlangsung (Carnero Quispe et al., 2024). Dalam penelitian ini, kondisi tersebut menjadi dasar untuk mengembangkan sistem yang membantu petugas membandingkan beberapa lokasi terdampak melalui kriteria yang dinyatakan secara jelas. 
+2.2.3 Distribusi Bantuan Logistik Bencana
+Distribusi bantuan logistik merupakan sistem penyaluran atau pembagian bantuan logistik dan peralatan dari daerah asal menuju daerah tujuan hingga mencapai penerima. Distribusi bantuan perlu dilakukan berdasarkan skala prioritas serta dilaksanakan secara cepat, tepat sasaran, efektif, efisien, dan akuntabel. Perencanaan distribusi pada masa tanggap darurat juga perlu mengacu pada hasil kaji cepat kebutuhan (needs assessment) dan mempertimbangkan kemudahan akses menuju lokasi terdampak (Badan Nasional Penanggulangan Bencana, 2010). 
+Sistem manajemen logistik dan peralatan penanggulangan bencana mencakup kegiatan perencanaan, pengadaan, pergudangan, pendistribusian, pengendalian, dan penghapusan. Kegiatan tersebut memerlukan koordinasi antarpihak agar bantuan dapat diterima sesuai kebutuhan masyarakat terdampak (Badan Nasional Penanggulangan Bencana, 2018). 
+Penentuan prioritas merupakan bagian yang berbeda dari alokasi bantuan dan optimasi rute. Penentuan prioritas menjawab lokasi mana yang perlu dipertimbangkan untuk didahulukan. Alokasi bantuan menjawab jumlah dan jenis bantuan yang diberikan kepada setiap lokasi, sedangkan optimasi rute menjawab jalur perjalanan yang digunakan oleh kendaraan. Penelitian ini dibatasi pada penentuan prioritas lokasi dan tidak membahas jumlah bantuan maupun rute distribusi. 
+2.2.4 Sistem Pendukung Keputusan
+Sistem pendukung keputusan dalam penelitian ini dipahami sebagai sistem yang mengolah data dan model penilaian untuk membantu pengguna membandingkan alternatif serta memperoleh rekomendasi. Salah satu penerapannya dalam bidang kebencanaan ditunjukkan oleh Kenap et al. (2026), yang mengintegrasikan metode pengambilan keputusan multikriteria dengan informasi geografis untuk menentukan prioritas respons bencana. Penerapan tersebut memperlihatkan bahwa informasi lokasi dan penilaian berdasarkan beberapa kriteria dapat digunakan secara bersama dalam proses penyusunan rekomendasi. 
+Dalam penelitian ini, rekomendasi digunakan sebagai informasi pendukung, bukan sebagai keputusan distribusi yang bersifat mutlak. Petugas tetap mempertimbangkan kondisi operasional yang tidak dimodelkan, seperti aksesibilitas jalan, ketersediaan kendaraan, stok bantuan, dan perubahan kondisi lokasi terdampak. 
+Sistem dalam penelitian ini menerima data sumber bantuan dan lokasi terdampak, menghitung jarak geografis, mengolah nilai setiap kriteria menggunakan EDAS, dan menghasilkan urutan prioritas. Hasil tersebut berfungsi sebagai rekomendasi, sedangkan keputusan pelaksanaan distribusi tetap berada pada petugas atau pihak yang berwenang. 
+2.2.5 Multi-Criteria Decision Making
+Multi-Criteria Decision Making (MCDM) merupakan pendekatan pengambilan keputusan yang digunakan ketika sejumlah alternatif perlu dievaluasi berdasarkan beberapa kriteria. Torkayesh et al. (2023) menjelaskan bahwa metode MCDM mengolah nilai alternatif berdasarkan kriteria untuk menghasilkan evaluasi atau urutan alternatif. Dalam logistik kemanusiaan, pendekatan multikriteria relevan karena keputusan distribusi tidak cukup dilakukan berdasarkan satu ukuran, seperti jarak atau biaya (Alturki & Lee, 2024). 
+Dalam penerapan EDAS sebagai metode pengambilan keputusan multikriteria, alternatif dinilai melalui matriks keputusan yang memuat nilai setiap alternatif pada masing-masing kriteria. Bobot digunakan untuk menyatakan kepentingan relatif kriteria, sedangkan hasil pengolahan nilai kriteria menghasilkan skor yang digunakan untuk mengurutkan alternatif (Keshavarz Ghorabaee et al., 2015). Berdasarkan struktur tersebut, komponen yang digunakan dalam penelitian ini meliputi:
+Alternatif, yaitu lokasi terdampak bencana yang akan dibandingkan.
+Kriteria, yaitu faktor penilaian yang digunakan untuk mengevaluasi setiap lokasi.
+Nilai kriteria, yaitu data atau skor setiap lokasi pada masing-masing kriteria.
+Bobot kriteria, yaitu nilai yang menyatakan kepentingan relatif setiap kriteria.
+Nilai akhir, yaitu skor hasil pengolahan nilai kriteria dan bobot menggunakan EDAS.
+Peringkat, yaitu urutan alternatif berdasarkan nilai akhir.
+Dalam EDAS, perhitungan jarak positif dan negatif terhadap solusi rata-rata dibedakan berdasarkan jenis kriteria. Kriteria benefit memberikan penilaian yang lebih baik terhadap nilai yang lebih tinggi, sedangkan kriteria cost memberikan penilaian yang lebih baik terhadap nilai yang lebih rendah (Keshavarz Ghorabaee et al., 2015). Penetapan jenis kriteria dalam penelitian ini mengikuti tujuan penilaian prioritas distribusi bantuan.
+2.2.6 Kriteria Prioritas Distribusi Bantuan
+Penetapan kriteria prioritas distribusi bantuan perlu memperhatikan kebutuhan masyarakat terdampak dan konteks pelaksanaan distribusi. Pedoman distribusi bantuan logistik dan peralatan penanggulangan bencana menekankan pelaksanaan distribusi berdasarkan skala prioritas serta penggunaan hasil kaji cepat kebutuhan dalam perencanaan distribusi pada masa tanggap darurat (Badan Nasional Penanggulangan Bencana, 2010). Berdasarkan konteks tersebut, penelitian ini mengusulkan tiga kriteria, yaitu jumlah masyarakat terdampak yang membutuhkan bantuan logistik, tingkat urgensi kebutuhan bantuan logistik, dan jarak geografis dari sumber bantuan aktif ke lokasi terdampak. Definisi operasional, indikator, dan cara pengukuran kriteria tersebut akan dikonfirmasi kepada pihak yang memahami proses distribusi bantuan.
+Jumlah masyarakat terdampak yang membutuhkan bantuan logistik menggambarkan jumlah orang yang memerlukan bantuan pada setiap lokasi dalam periode penilaian. Kriteria ini diperlakukan sebagai kriteria benefit karena nilai yang lebih tinggi menunjukkan skala penerima bantuan yang lebih besar. Data yang digunakan perlu mempunyai aturan pencatatan yang jelas agar tidak terjadi penghitungan ganda atau pencampuran kelompok penerima bantuan tanpa dasar. 
+Tingkat urgensi kebutuhan bantuan logistik menggambarkan tingkat kemendesakan pemenuhan kebutuhan pada suatu lokasi. Kriteria ini diperlakukan sebagai kriteria benefit karena nilai yang lebih tinggi menunjukkan kebutuhan yang semakin mendesak. Konsep urgensi ini merujuk pada prinsip kaji cepat kebutuhan (rapid needs assessment) dan triase logistik kemanusiaan, di mana prioritas ditentukan berdasarkan tingkat ancaman terhadap kelangsungan hidup korban apabila bantuan mengalami keterlambatan. Skala penilaian ordinal 1 sampai 5 digunakan untuk mengelompokkan kondisi lokasi, mulai dari kondisi terdampak ringan dengan pasokan mandiri yang masih mencukupi hingga kondisi kritis yang terisolasi dan kehabisan kebutuhan dasar pangan maupun medis. Indikator, kategori, dan skala penilaian yang digunakan dalam penelitian perlu ditetapkan berdasarkan informasi lapangan serta dikonfirmasi kepada pihak yang memahami kebutuhan masyarakat terdampak.
+Jarak geografis dari sumber bantuan aktif ke lokasi terdampak menggambarkan kedekatan geografis kedua lokasi. Nilainya diperoleh melalui perhitungan algoritma Haversine dan diperlakukan sebagai kriteria cost karena jarak yang lebih kecil dinilai lebih menguntungkan dari sisi kedekatan geografis. Meskipun demikian, jarak bukan satu-satunya dasar penentuan prioritas. Lokasi yang lebih jauh tetap dapat memperoleh prioritas tinggi berdasarkan kombinasi nilai seluruh kriteria dan bobot yang digunakan.
+2.2.7 Pembobotan Kriteria
+Dalam metode EDAS, bobot digunakan untuk menyatakan kepentingan relatif setiap kriteria dalam perhitungan jumlah terbobot jarak positif dan negatif terhadap solusi rata-rata (Keshavarz Ghorabaee et al., 2015). Pada penelitian ini, bobot dinyatakan dengan simbol wⱼ, dengan j menunjukkan kriteria ke-j. Bobot ditetapkan tidak negatif dan dinormalisasi sehingga jumlah seluruh bobot sama dengan satu.
+EDAS menggunakan bobot sebagai masukan dalam proses penilaian, tetapi penerapan EDAS tidak dengan sendirinya menentukan cara memperoleh bobot tersebut. Oleh karena itu, sumber dan prosedur penetapan bobot perlu dijelaskan secara terpisah. Dalam rancangan penelitian ini, penilaian pihak yang memahami distribusi bantuan dipertimbangkan sebagai sumber pembobotan. Prosedur pengumpulan penilaian, skala kepentingan, jumlah pemberi penilaian, dan cara penggabungan penilaian akan ditetapkan sebelum pengolahan data dilakukan. 
+Penetapan bobot kriteria dalam penelitian ini mengadopsi pendekatan pembobotan subjektif langsung (direct rating atau point allocation). Pada pendekatan ini, pengambil keputusan memberikan skor tingkat kepentingan secara langsung terhadap masing-masing kriteria menggunakan skala penilaian tertentu, yang selanjutnya dinormalisasi sehingga memenuhi syarat jumlah bobot sama dengan satu. Pendekatan pembobotan langsung dipilih karena memiliki beban kognitif yang relatif rendah dan proses pengisian yang cepat bagi petugas penanganan bencana di lapangan jika dibandingkan dengan metode perbandingan berpasangan (seperti AHP) yang membutuhkan matriks perbandingan kompleks pada saat situasi tanggap darurat. Untuk mengantisipasi potensi bias subjektivitas, stabilitas bobot yang dihasilkan akan diuji lebih lanjut melalui analisis sensitivitas.
+Perubahan bobot dapat mengubah nilai akhir dan urutan alternatif. Huang et al. (2022), dalam model yang mengintegrasikan EDAS dengan regret theory pada lingkungan penilaian linguistik, menunjukkan bahwa alternatif terbaik dapat tetap sama pada skenario bobot yang diuji, sementara urutan alternatif lainnya dapat berubah. Temuan tersebut menjadi pertimbangan untuk memeriksa pengaruh perubahan bobot terhadap hasil pemeringkatan. Namun, penelitian ini tetap menggunakan EDAS klasik dan tidak menerapkan integrasi regret theory maupun lingkungan penilaian linguistik yang digunakan oleh Huang et al. (2022). 
+2.2.8 Koordinat Geografis
+Posisi suatu titik di permukaan bumi dapat dinyatakan menggunakan latitude dan longitude. Latitude atau garis lintang menyatakan posisi sudut suatu titik di sebelah utara atau selatan khatulistiwa, sedangkan longitude atau garis bujur menyatakan posisi sudut di sebelah timur atau barat meridian utama (National Oceanic and Atmospheric Administration [NOAA], 2026a, 2026b). Dalam penelitian ini, kedua nilai tersebut digunakan untuk merepresentasikan posisi sumber bantuan dan lokasi terdampak. 
+Nilai koordinat pada umumnya dinyatakan dalam derajat. Dalam perhitungan trigonometri, nilai tersebut perlu dikonversi menjadi radian menggunakan Persamaan (2.1):
+(2.1)
+Keterangan:
+ adalah nilai sudut dalam radian;
+ adalah nilai sudut dalam derajat;
+ adalah konstanta pi dengan nilai sekitar 3,14159265.
+Dalam representasi derajat desimal bertanda, latitude berada pada rentang −90° sampai 90°, sedangkan longitude berada pada rentang −180° sampai 180° (NOAA, 2026a, 2026b). Nilai koordinat diperiksa sebelum digunakan agar sesuai dengan rentang tersebut. Koordinat kemudian dikonversi menjadi radian untuk digunakan dalam fungsi trigonometri pada perhitungan Haversine. Sutedi et al. (2024) juga menggunakan koordinat lintang dan bujur dalam radian pada perhitungan jarak geografis. 
+Dalam penelitian ini, koordinat digunakan untuk merepresentasikan posisi sumber bantuan dan lokasi terdampak. Koordinat tersebut menjadi masukan dalam perhitungan jarak menggunakan algoritma Haversine.
+2.2.9 Algoritma Haversine
+Algoritma Haversine digunakan untuk menghitung jarak lingkaran besar (great-circle distance) antara dua titik pada permukaan bumi berdasarkan koordinat latitude dan longitude. Perhitungan tersebut menggunakan pendekatan bahwa bumi berbentuk bola. Haversine telah digunakan dalam penelitian berbasis data geografis untuk menghitung jarak antartitik dan mendukung analisis lokasi kebencanaan (Sutedi et al., 2024; Dendeng et al., 2026).
+Persamaan Haversine yang digunakan dalam penelitian ini mengacu pada bentuk perhitungan yang dijelaskan oleh Sutedi et al. (2024), yaitu menghitung selisih lintang dan bujur, menghitung komponen a, menentukan sudut pusat c menggunakan fungsi atan2, dan menghitung jarak d sebagai hasil perkalian radius bumi dengan sudut pusat. Notasi pada persamaan disesuaikan agar konsisten dengan simbol yang digunakan dalam penelitian ini.
+Misalkan titik pertama merupakan sumber bantuan dengan koordinat , sedangkan titik kedua merupakan lokasi terdampak dengan koordinat . Simbol  menunjukkan latitude dan simbol  menunjukkan longitude. Sebelum digunakan dalam fungsi trigonometri, seluruh koordinat harus dikonversi dari derajat menjadi radian. 
+Perbedaan latitude dan longitude kedua titik dihitung menggunakan Persamaan (2.2) dan Persamaan (2.3):
+(2.2)
+(2.3)
+Selanjutnya, nilai  dihitung menggunakan Persamaan (2.4):
+(2.4)
+Nilai  menggambarkan komponen jarak sudut antara kedua titik. Berdasarkan nilai tersebut, sudut pusat  dihitung menggunakan Persamaan (2.5):
+(2.5)
+Jarak geografis antara kedua titik selanjutnya dihitung menggunakan Persamaan (2.6):
+(2.6)
+Keterangan:
+ adalah jarak geografis antara dua titik;
+ adalah radius rata-rata bumi;
+ adalah sudut pusat antara dua titik dalam radian;
+ adalah komponen perhitungan Haversine;
+ dan  adalah latitude dalam radian;
+ dan  adalah longitude dalam radian;
+ adalah selisih latitude;
+ adalah selisih longitude;
+ adalah fungsi arctangent dua argumen.
+Radius bumi yang digunakan dalam penelitian ini ditetapkan sebesar 6.371 kilometer, sesuai nilai radius rata-rata bumi yang digunakan dalam penjelasan persamaan Haversine oleh Sutedi et al. (2024). Dengan menggunakan radius dalam kilometer, hasil perhitungan jarak juga dinyatakan dalam kilometer. Nilai radius, satuan koordinat, dan aturan pembulatan yang digunakan pada perhitungan pembanding dan implementasi sistem harus konsisten.  
+Hasil Haversine merupakan jarak geografis pada permukaan bumi, bukan jarak perjalanan berdasarkan jaringan jalan. Perhitungan tersebut tidak mempertimbangkan kerusakan jalan, kondisi medan, kemacetan, cuaca, keamanan, dan waktu tempuh kendaraan. Oleh karena itu, hasil Haversine dalam penelitian ini hanya digunakan sebagai nilai kriteria jarak dalam pemeringkatan EDAS dan bukan untuk menentukan rute distribusi. 
+2.2.10 Metode EDAS
+Evaluation Based on Distance from Average Solution (EDAS) merupakan metode pengambilan keputusan multikriteria yang mengevaluasi alternatif berdasarkan jaraknya terhadap solusi rata-rata. Berbeda dari metode yang menggunakan solusi ideal positif dan negatif, EDAS menggunakan nilai rata-rata setiap kriteria sebagai titik pembanding. Evaluasi dilakukan menggunakan Positive Distance from Average (PDA) dan Negative Distance from Average (NDA) (Keshavarz Ghorabaee et al., 2015; Torkayesh et al., 2023). 
+PDA menunjukkan tingkat keunggulan nilai suatu alternatif dibandingkan solusi rata-rata, sedangkan NDA menunjukkan tingkat kekurangan alternatif dibandingkan solusi rata-rata. Alternatif yang baik diharapkan mempunyai nilai PDA yang tinggi dan NDA yang rendah. Dalam penelitian ini, lokasi terdampak diposisikan sebagai alternatif. Kriteria yang digunakan meliputi jumlah masyarakat terdampak yang membutuhkan bantuan logistik, tingkat urgensi kebutuhan bantuan logistik, dan jarak geografis dari sumber bantuan aktif ke lokasi terdampak.
+Penerapan persamaan EDAS perlu memperhatikan kondisi khusus pada data masukan dan nilai penyebut. Persamaan jarak positif dan negatif menggunakan solusi rata-rata setiap kriteria sebagai penyebut, sedangkan normalisasi menggunakan nilai maksimum jumlah terbobot PDA dan NDA sebagai penyebut (Keshavarz Ghorabaee et al., 2015). Apabila salah satu penyebut tersebut bernilai nol, persamaan terkait tidak dapat dihitung secara langsung karena menghasilkan pembagian dengan nol. Oleh karena itu, nilai penyebut perlu diperiksa sebelum perhitungan dilanjutkan. Selain itu, beberapa alternatif dapat memperoleh nilai akhir yang sama sehingga tidak dapat dibedakan prioritasnya hanya berdasarkan nilai akhir EDAS. Prosedur pemeriksaan data, penanganan penyebut bernilai nol, dan penyajian alternatif dengan nilai akhir yang sama akan dijelaskan dalam BAB III sebagai bagian dari rancangan implementasi.
+Tahapan dan persamaan EDAS pada bagian ini mengacu pada metode yang diperkenalkan oleh Keshavarz Ghorabaee et al. (2015). Penyajiannya disesuaikan dengan notasi penelitian, sedangkan penerapannya menggunakan lokasi terdampak sebagai alternatif dan tiga kriteria penelitian sebagai dasar penilaian. 
+Misalkan terdapat  alternatif dan  kriteria. Alternatif dinyatakan sebagai , dengan , sedangkan kriteria dinyatakan sebagai , dengan . 
+1. Membentuk matriks keputusan
+Nilai setiap alternatif berdasarkan setiap kriteria disusun menjadi matriks keputusan pada Persamaan (2.7):
+(2.7)
+atau:
+Keterangan:
+ adalah nilai alternatif ke- pada kriteria ke-;
+ adalah jumlah alternatif;
+ adalah jumlah kriteria.
+Dalam penelitian ini, matriks keputusan terdiri atas:
+: jumlah masyarakat terdampak yang membutuhkan bantuan logistik, sebagai kriteria benefit;
+: tingkat urgensi kebutuhan bantuan logistik, sebagai kriteria benefit;
+: jarak geografis dari sumber bantuan aktif ke lokasi terdampak yang dihitung menggunakan algoritma Haversine, sebagai kriteria cost.
+2. Menentukan bobot kriteria
+Bobot setiap kriteria dinyatakan dengan . Bobot harus bernilai tidak negatif dan jumlah seluruh bobot harus sama dengan satu sebagaimana dinyatakan pada Persamaan (2.8):
+(2.8)
+Bobot yang lebih besar menunjukkan bahwa kriteria tersebut mempunyai tingkat kepentingan yang lebih besar dalam proses pemeringkatan.
+3. Menghitung solusi rata-rata
+Solusi rata-rata untuk setiap kriteria dihitung menggunakan Persamaan (2.9):
+(2.9)
+Keterangan:
+ adalah solusi rata-rata kriteria ke-;
+adalah nilai alternatif ke- pada kriteria ke-;
+ adalah jumlah alternatif.
+4. Menghitung PDA dan NDA pada kriteria benefit
+Pada kriteria benefit, nilai yang lebih besar dinilai lebih baik. PDA dan NDA dihitung menggunakan Persamaan (2.10) dan Persamaan (2.11):
+(2.10)
+(2.11)
+Jika nilai alternatif lebih besar daripada rata-rata, alternatif tersebut memperoleh PDA. Sebaliknya, jika nilainya lebih kecil daripada rata-rata, alternatif tersebut memperoleh NDA.
+5. Menghitung PDA dan NDA pada kriteria cost
+Pada kriteria cost, nilai yang lebih kecil dinilai lebih baik. PDA dan NDA dihitung menggunakan Persamaan (2.12) dan Persamaan (2.13):
+(2.12)
+(2.13)
+Pada penelitian ini, jarak merupakan kriteria cost. Oleh karena itu, lokasi yang jaraknya lebih kecil daripada rata-rata memperoleh nilai PDA, sedangkan lokasi yang jaraknya lebih besar daripada rata-rata memperoleh nilai NDA.
+6. Menghitung jumlah terbobot PDA dan NDA
+Jumlah terbobot PDA setiap alternatif dihitung menggunakan Persamaan (2.14):
+(2.14)
+Jumlah terbobot NDA dihitung menggunakan Persamaan (2.15):
+(2.15)
+Keterangan:
+ adalah jumlah terbobot PDA alternatif ke-;
+ adalah jumlah terbobot NDA alternatif ke-;
+ adalah bobot kriteria ke-.
+7. Melakukan normalisasi SP dan SN
+Nilai  dinormalisasi menggunakan Persamaan (2.16):
+(2.16)
+Nilai  dinormalisasi menggunakan Persamaan (2.17):
+(2.17)
+Keterangan:
+ adalah nilai normalisasi jumlah PDA;
+ adalah nilai normalisasi jumlah NDA.
+Pengurangan dari satu pada normalisasi  dilakukan agar nilai yang lebih tinggi tetap menunjukkan alternatif yang lebih baik.
+8. Menghitung appraisal score
+Nilai akhir atau appraisal score setiap alternatif dihitung menggunakan Persamaan (2.18):
+(2.18)
+Nilai  berada pada rentang:
+Nilai appraisal score yang lebih tinggi menunjukkan alternatif yang lebih direkomendasikan.
+9. Menentukan peringkat
+Alternatif diurutkan berdasarkan nilai  dari nilai terbesar sampai nilai terkecil. Alternatif dengan appraisal score terbesar menempati peringkat pertama dan menjadi lokasi yang lebih diprioritaskan berdasarkan kriteria serta bobot yang digunakan. Hasil peringkat EDAS bersifat relatif terhadap alternatif yang sedang dievaluasi. Penambahan atau pengurangan alternatif dapat mengubah solusi rata-rata dan hasil pemeringkatan. Hasil EDAS juga dipengaruhi oleh kualitas data, definisi kriteria, dan bobot yang digunakan. Oleh karena itu, hasil EDAS dalam penelitian ini diposisikan sebagai rekomendasi pendukung dan bukan sebagai keputusan distribusi yang bersifat mutlak.
+2.2.11 Verifikasi Perhitungan
+Verifikasi merupakan pemeriksaan kesesuaian sistem terhadap persyaratan yang telah ditentukan, sedangkan validasi berkaitan dengan kesesuaian sistem terhadap kebutuhan pengguna dan pihak terkait dalam lingkungan operasionalnya (International Software Testing Qualifications Board [ISTQB], 2024). Dalam penelitian ini, verifikasi perhitungan difokuskan pada pemeriksaan kesesuaian hasil implementasi algoritma Haversine dan metode EDAS terhadap perhitungan pembanding menggunakan data masukan yang sama. 
+Pada perhitungan Haversine, nilai yang dibandingkan meliputi hasil konversi koordinat dan jarak antarlokasi. Pada EDAS, nilai yang dibandingkan dapat mencakup solusi rata-rata, PDA, NDA, jumlah terbobot, hasil normalisasi, appraisal score, dan urutan alternatif. Perbedaan hasil yang hanya berasal dari pembulatan perlu dibedakan dari kesalahan penerapan rumus. 
+Keberhasilan verifikasi perhitungan menunjukkan kesesuaian hasil implementasi dengan rumus dan aturan perhitungan yang digunakan. Namun, kesesuaian numerik tersebut belum membuktikan bahwa rekomendasi sudah sesuai dengan kebutuhan distribusi di lapangan. Penilaian terhadap kegunaan rekomendasi perlu mempertimbangkan definisi kriteria, kualitas data, dasar pembobotan, dan masukan petugas. Dengan demikian, verifikasi perhitungan dan penilaian kesesuaian rekomendasi mempunyai tujuan yang berbeda. 
+2.2.12 Analisis Sensitivitas
+Analisis sensitivitas bobot digunakan untuk memeriksa perubahan hasil penilaian ketika konfigurasi bobot kriteria diubah. Dalam pengembangan awal EDAS, Keshavarz Ghorabaee et al. (2015) menggunakan beberapa konfigurasi bobot untuk menganalisis hasil pemeringkatan. Dalam penelitian ini, analisis sensitivitas direncanakan dengan menerapkan beberapa skenario bobot pada data alternatif yang sama, kemudian membandingkan perubahan appraisal score, posisi peringkat, dan alternatif yang menempati peringkat pertama.
+Huang et al. (2022) menggunakan beberapa skenario bobot untuk memeriksa kestabilan pemeringkatan pada model EDAS yang diintegrasikan dengan regret theory dalam lingkungan penilaian linguistik. Pada skenario yang mereka uji, alternatif terbaik tetap berada pada peringkat pertama, sedangkan urutan alternatif lainnya dapat berubah. Temuan tersebut berkaitan dengan model dan data penelitian Huang et al. (2022), sehingga tidak dapat dianggap sebagai jaminan kestabilan EDAS klasik dalam penelitian ini. Bhakuni et al. (2025) juga menunjukkan pentingnya pemeriksaan kestabilan hasil ketika beberapa metode pemeringkatan dan pembobotan digunakan pada permasalahan pemilihan pusat bantuan. Oleh karena itu, kestabilan rekomendasi dalam penelitian ini akan diperiksa menggunakan data alternatif dan skenario perubahan bobot yang ditetapkan dalam rancangan penelitian. 
+Analisis sensitivitas tidak digunakan untuk mencari skenario bobot yang menghasilkan urutan yang diinginkan. Analisis ini digunakan untuk mengetahui kriteria yang paling memengaruhi hasil dan menilai apakah rekomendasi terlalu bergantung pada satu konfigurasi bobot. Hasil analisis sensitivitas perlu diinterpretasikan berdasarkan tujuan keputusan dan dasar penetapan bobot.
+2.2.13 Metode Pengembangan Sistem Waterfall
+Metode Waterfall merupakan salah satu model proses pengembangan perangkat lunak yang mengatur kegiatan pengembangan secara bertahap dan sistematis. Setiap tahapan menghasilkan keluaran yang menjadi dasar bagi pelaksanaan tahapan berikutnya. Pendekatan ini menekankan perencanaan kebutuhan dan dokumentasi pada setiap tahap sehingga proses pengembangan dapat dilakukan dengan alur yang jelas. Model proses yang bersifat terencana sesuai digunakan ketika ruang lingkup dan kebutuhan utama sistem dapat ditentukan sejak awal pengembangan (Pressman & Maxim, 2020). 
+Dalam rancangan penelitian ini, kegiatan pengembangan sistem disusun menjadi analisis kebutuhan, perancangan sistem, implementasi, pengujian, serta pemeliharaan terbatas. Uraian berikut menjelaskan kegiatan yang direncanakan pada setiap tahap untuk pengembangan sistem rekomendasi prioritas distribusi bantuan. 
+Analisis Kebutuhan
+ Pada penelitian ini, tahap analisis kebutuhan akan digunakan untuk mengidentifikasi masalah, kebutuhan pengguna, data yang diperlukan, proses distribusi yang berjalan, dan fungsi yang harus disediakan oleh sistem. Hasil analisis tersebut menjadi dasar penetapan ruang lingkup pengembangan. Kegiatan yang direncanakan mencakup identifikasi data sumber bantuan aktif, lokasi terdampak, koordinat geografis, jumlah masyarakat terdampak yang membutuhkan bantuan logistik, indikator urgensi kebutuhan bantuan, dasar pembobotan kriteria, serta bentuk rekomendasi yang diperlukan oleh petugas.
+Perancangan Sistem
+Tahap perancangan digunakan untuk menerjemahkan kebutuhan menjadi rancangan sistem yang akan dibangun. Perancangan dapat mencakup arsitektur sistem, basis data, proses pengolahan data, antarmuka pengguna, dan hubungan antarkomponen sistem. Pada penelitian ini, tahap perancangan meliputi rancangan pengelolaan data sumber bantuan dan lokasi terdampak, proses perhitungan jarak menggunakan algoritma Haversine, proses pemeringkatan menggunakan metode EDAS, serta penyajian hasil rekomendasi prioritas. 
+Implementasi
+Tahap implementasi merupakan proses menerjemahkan rancangan sistem ke dalam bentuk perangkat lunak. Pada tahap ini, fungsi-fungsi yang telah dirancang dikembangkan menggunakan bahasa pemrograman, basis data, dan teknologi pendukung yang dipilih. Implementasi dalam penelitian ini mencakup fungsi pengelolaan data, perhitungan jarak geografis, pengolahan kriteria dan bobot, perhitungan EDAS, serta penyajian urutan prioritas lokasi terdampak. 
+Pengujian
+Pada penelitian ini, tahap pengujian direncanakan mencakup pengujian fungsional dengan pendekatan black-box. Pendekatan tersebut menyusun pengujian berdasarkan perilaku yang ditentukan dalam spesifikasi tanpa mengacu pada struktur internal perangkat lunak (ISTQB, 2024). Pengujian dilakukan dengan memberikan masukan dan membandingkan keluaran aktual dengan keluaran yang diharapkan. Selain itu, verifikasi numerik digunakan untuk memeriksa hasil perhitungan Haversine dan EDAS, sedangkan analisis sensitivitas digunakan untuk mengamati perubahan pemeringkatan akibat perubahan bobot. 
+Pemeliharaan dan Evaluasi
+Tahap pemeliharaan dilakukan setelah sistem selesai dikembangkan dan diuji. Tahap ini dapat mencakup perbaikan kesalahan, penyesuaian fungsi, dan pengembangan sistem berdasarkan hasil evaluasi. Dalam ruang lingkup penelitian ini, tahap tersebut dibatasi pada perbaikan kesalahan yang ditemukan selama pengujian dan penyempurnaan sistem berdasarkan hasil evaluasi. Pemeliharaan operasional dalam jangka panjang tidak menjadi bagian dari penelitian. 
+Metode Waterfall memiliki kelebihan berupa tahapan yang terstruktur, keluaran setiap tahap yang dapat didokumentasikan, serta kemudahan dalam memantau kemajuan pengembangan. Namun, metode ini juga memiliki keterbatasan karena perubahan kebutuhan pada tahap akhir dapat memerlukan penyesuaian terhadap hasil tahap sebelumnya. Oleh karena itu, kebutuhan utama sistem perlu dikonfirmasi sebelum tahap perancangan dan implementasi dilakukan (Pressman & Maxim, 2020). 
+Dalam penelitian ini, Waterfall digunakan sebagai pedoman pengembangan perangkat lunak, sedangkan algoritma Haversine dan metode EDAS digunakan sebagai metode komputasi di dalam sistem. Algoritma Haversine digunakan untuk menghasilkan nilai jarak geografis antara sumber bantuan dan lokasi terdampak, sedangkan EDAS digunakan untuk mengolah nilai setiap kriteria dan menghasilkan rekomendasi urutan prioritas. Dengan demikian, Waterfall, Haversine, dan EDAS mempunyai fungsi yang berbeda tetapi saling mendukung dalam pelaksanaan penelitian.  
+2.3 Kerangka Pemikiran
+Kerangka pemikiran dalam penelitian ini disusun untuk menggambarkan alur logika pemecahan masalah secara terstruktur, menghubungkan identifikasi permasalahan di lapangan, landasan metodologi yang diterapkan, hingga keluaran sistem yang diharapkan. Hubungan antara masalah prioritas bantuan, tujuan penelitian, metode, dan hasil yang diharapkan disajikan pada Tabel 2.
+Tabel 2. Kerangka Pemikiran
+Identifikasi Masalah
+Beberapa lokasi terdampak dapat membutuhkan bantuan logistik secara bersamaan, sedangkan sumber daya distribusi terbatas. Penentuan prioritas perlu mempertimbangkan jumlah masyarakat terdampak yang membutuhkan bantuan logistik, tingkat urgensi kebutuhan bantuan logistik, dan jarak geografis dari sumber bantuan aktif ke lokasi terdampak.
+Tujuan
+Menghasilkan rekomendasi urutan prioritas lokasi terdampak yang terstruktur dan dapat ditelusuri sebagai informasi pendukung bagi petugas. 
+Metode
+Waterfall digunakan sebagai metode pengembangan sistem. Algoritma Haversine digunakan untuk menghitung jarak geografis, sedangkan metode EDAS digunakan untuk memeringkat lokasi terdampak berdasarkan tiga kriteria dan bobot yang ditetapkan. Pengujian meliputi verifikasi perhitungan, pengujian black-box, dan analisis sensitivitas bobot.
+Hasil yang Diharapkan
+Prototipe sistem pendukung keputusan yang menampilkan nilai perhitungan dan rekomendasi urutan prioritas lokasi terdampak. 
+Tabel 2 menunjukkan bahwa identifikasi masalah dan kebutuhan pengguna menjadi dasar pengembangan sistem menggunakan Waterfall. Data lokasi dan koordinat digunakan dalam perhitungan Haversine untuk memperoleh nilai jarak geografis. Nilai tersebut diolah bersama jumlah masyarakat yang membutuhkan bantuan logistik dan tingkat urgensi kebutuhan menggunakan EDAS untuk menghasilkan urutan prioritas. Pengujian direncanakan mencakup verifikasi perhitungan, pengujian fungsional dengan pendekatan black-box, dan analisis sensitivitas bobot. Hasilnya berupa rekomendasi pendukung keputusan bagi petugas, dengan tetap mempertimbangkan kondisi operasional yang tidak dimodelkan.
+BAB IIIMETODE PENELITIAN
+3.1 Metode Pengumpulan Data
+Penelitian ini menggunakan pendekatan pengembangan prototipe sistem pendukung keputusan pada bidang Rekayasa Perangkat Lunak dan Data (RPLD) yang didukung oleh pengumpulan data sekunder resmi dan pengujian komputasi kuantitatif. Objek penelitian difokuskan pada proses penentuan prioritas distribusi bantuan logistik dalam penanganan bencana banjir pada wilayah administratif Kota Semarang, dengan sejumlah titik posko pengungsian sebagai alternatif keputusan. Pendekatan pengumpulan data sekunder berbasis dokumen publik dan data spasial digital dipilih guna memastikan bahwa parameter yang digunakan dalam model keputusan bersifat objektif, terstandarisasi, dan dapat dipertanggungjawabkan keabsahannya tanpa bergantung pada wawancara lapangan personal yang rentan terhadap bias persepsi maupun kendala birokrasi perizinan riset darurat.
+Data yang dihimpun dalam penelitian ini mencakup data spasial berupa koordinat geografis sumber logistik dan posko terdampak, data demografi pengungsi, status keparahan bencana, serta standar kebutuhan dasar logistik. Seluruh parameter tersebut diperoleh dari website resmi BPBD Kota Semarang, publikasi rekapitulasi kebencanaan BNPB, regulasi penanggulangan bencana, dan platform informasi geospasial terpercaya. Prosedur pengumpulan data dirancang secara sistematis ke dalam enam tahapan kegiatan sebagai berikut:
+3.1.1 Studi Literatur
+Studi literatur dilakukan untuk membangun landasan teoretis yang kokoh, memahami formulasi matematis, serta mengkaji state-of-the-art dari penelitian terdahulu yang relevan dengan topik logistik kemanusiaan dan sistem pendukung keputusan. Pengumpulan literatur dilakukan melalui penelusuran artikel jurnal ilmiah nasional dan internasional bereputasi (seperti IEEE, ScienceDirect, Springer, dan SINTA), prosiding konferensi, serta buku teks rujukan bidang rekayasa perangkat lunak dan komputasi spasial.
+Kajian literatur dalam penelitian ini difokuskan pada empat domain utama, yaitu: konsep logistik kemanusiaan (humanitarian logistics) pada masa tanggap darurat bencana banjir perkotaan; formulasi algoritma Haversine untuk komputasi jarak lingkaran besar (great-circle distance) antar koordinat geografis di atas elipsoid bumi; teori Multi-Criteria Decision Making (MCDM) metode EDAS (Evaluation based on Distance from Average Solution) yang mencakup perhitungan Positive Distance from Average (PDA), Negative Distance from Average (NDA), hingga perolehan Appraisal Score (AS); serta metode pengembangan perangkat lunak model Waterfall dan standar pengujian fungsional Black-Box Testing mengacu pada International Software Testing Qualifications Board (ISTQB).
+3.1.2 Kajian Regulasi dan Standar Logistik Kebencanaan
+Kajian regulasi dilakukan untuk memperoleh landasan yuridis dan operasional yang baku mengenai tata kelola logistik penanggulangan bencana di Indonesia. Dokumen regulasi pemerintah ditelaah secara mendalam guna mengidentifikasi standar minimal penanganan pengungsi, mekanisme penetapan status keadaan darurat, dan klasifikasi jenis bantuan logistik yang menjadi tanggung jawab pemerintah daerah tanpa harus melakukan wawancara langsung ke pihak instansi.
+Kajian terhadap regulasi dan dokumen standar kebencanaan mencakup penelaahan Undang-Undang Republik Indonesia Nomor 24 Tahun 2007 tentang Penanggulangan Bencana, Peraturan Kepala Badan Nasional Penanggulangan Bencana (BNPB) Nomor 18 Tahun 2018 tentang Pedoman Logistik Kebencanaan, serta standar piagam kemanusiaan internasional (The Sphere Project: Humanitarian Charter and Minimum Standards in Humanitarian Response). Penelaahan regulasi ini digunakan untuk mengonstruksi definisi operasional kriteria kebutuhan dasar (pangan dan non-pangan) serta menetapkan ambang batas waktu kritis toleransi pasokan (24 jam, 48 jam, dan 72 jam) yang dioperasionalkan secara rigid ke dalam skala tingkat urgensi (C2).
+3.1.3 Studi Dokumentasi Laporan Bencana Publik
+Studi dokumentasi dilakukan untuk menghimpun data empiris mengenai riwayat kejadian bencana banjir di wilayah administratif Kota Semarang. Data dihimpun dari publikasi resmi Pusat Pengendalian Operasi Penanggulangan Bencana (Pusdalops-PB) pada website resmi BPBD Kota Semarang serta Buku Data Bencana Indonesia yang dirilis secara berkala oleh Pusdatinkom BNPB. Pemanfaatan dokumen resmi yang dipublikasikan secara terbuka ini memastikan bahwa karakteristik kasus yang diteliti mencerminkan kondisi lapangan riil dari peristiwa bencana tahunan di Kota Semarang.
+Informasi yang diekstraksi dari laporan rekapitulasi kebencanaan meliputi identitas sebaran wilayah kelurahan dan kecamatan yang memiliki kerentanan tinggi terhadap bencana banjir genangan dan rob di Kota Semarang (seperti kawasan Kecamatan Genuk, Gayamsari, dan Semarang Utara); identitas titik posko pengungsian, balai kelurahan, tempat ibadah, atau gedung sekolah yang difungsikan sebagai lokasi konsentrasi pengungsi; data kuantitatif jumlah warga atau kepala keluarga yang mengungsi sebagai masukan kriteria jumlah masyarakat terdampak (C1); serta catatan durasi genangan air dan status keterisolasian jalur transportasi untuk memvalidasi penentuan skor tingkat urgensi (C2).
+3.1.4 Ekstraksi Data Geospasial Digital
+Pengumpulan data posisi geografis dilakukan dengan memanfaatkan metode ekstraksi koordinat digital (digital geospatial extraction) melalui platform pemetaan geospasial berbasis web, antara lain Google Maps Platform, OpenStreetMap, dan portal pemetaan risiko bencana InaRISK BNPB. Pendekatan ekstraksi digital ini memungkinkan perolehan koordinat titik presisi tanpa harus melakukan survei pengukuran terestrial langsung di lapangan saat kondisi darurat.
+Prosedur ekstraksi data spasial mencakup penentuan koordinat titik referensi sumber bantuan (origin), yaitu lokasi Kantor dan Gudang Logistik Utama BPBD Kota Semarang (kawasan Gayamsari/Semarang Tengah) sebagai basis tolak armada distribusi logistik; serta penentuan koordinat titik alternatif tujuan (destinations) dari masing-masing posko pengungsian atau kantor kelurahan terdampak banjir. Nilai lintang (latitude) dan bujur (longitude) dari setiap titik diekstraksi ke dalam format derajat desimal (decimal degrees) dengan presisi minimal enam angka di belakang koma, kemudian dikonversi ke satuan radian sebelum diproses ke dalam persamaan trigonometri algoritma Haversine guna menghasilkan nilai kriteria jarak geografis (C3).
+3.1.5 Pra-pemrosesan dan Pemeriksaan Integritas Data
+Tahap pra-pemrosesan data (data preprocessing) dilakukan untuk memeriksa validitas, kebersihan, dan konsistensi seluruh data sekunder yang telah terkumpul sebelum diinput ke dalam matriks keputusan sistem pendukung keputusan. Tahapan ini sangat krusial untuk mencegah terjadinya galat komputasi (runtime errors) maupun anomali pemeringkatan pada saat algoritma EDAS dijalankan.
+Kegiatan pra-pemrosesan data mencakup validasi batas geografis (geographical bounding box) untuk memastikan seluruh koordinat berada dalam batas administratif Kota Semarang (pada rentang 6°50′ – 7°10′ Lintang Selatan dan 110°17′ – 110°30′ Bujur Timur); penanganan data kosong (handling missing values) dengan memastikan setiap alternatif posko memiliki nilai lengkap pada kriteria C1, C2, dan C3 tanpa ada nilai kosong (null); serta penertiban nilai kuantitas demografi pada kriteria C1 agar murni merefleksikan jumlah jiwa pengungsi yang membutuhkan pemenuhan pangan/sandang aktif, terpisah dari data korban luka berat atau meninggal dunia.
+3.1.6 Konstruksi Dataset Pengujian Kasus Riil
+Data sekunder yang telah melalui proses validasi dan pembersihan selanjutnya dikonstruksi menjadi sebuah dataset matriks keputusan pengujian yang merepresentasikan skenario penanganan darurat banjir di Kota Semarang. Matriks keputusan ini memuat sejumlah alternatif posko pengungsian (4 hingga 6 lokasi posko terdampak) dengan nilai-nilai untuk kriteria C1 (jumlah jiwa terdampak), C2 (skala tingkat urgensi 1–5), dan C3 (jarak hasil kalkulasi Haversine dari gudang logistik BPBD).
+Selain matriks nilai alternatif, pada tahap ini juga disusun konfigurasi vektor bobot kriteria (Wj) berdasarkan sintesis tingkat kepentingan regulasi dan literatur kebencanaan dengan ketentuan total bobot bernilai satu. Dataset terstruktur ini disiapkan sebagai masukan data uji dalam perancangan basis data prototipe sistem, bahan uji verifikasi numerik pembanding menggunakan lembar kerja (spreadsheet), serta instrumen dasar dalam pelaksanaan analisis sensitivitas bobot pada tahap pengujian metode.
+Apabila data historis pada suatu periode kejadian bencana belum sepenuhnya lengkap, dataset simulasi berbasis parameter karakteristik kasus riil banjir Kota Semarang dapat digunakan untuk memverifikasi fungsi dan formulasi komputasi sistem. Namun, dataset tersebut tetap diposisikan untuk menguji kebenaran algoritma dan fungsionalitas perangkat lunak pendukung keputusan, bukan sebagai klaim operasional yang melampaui batasan data yang diuji.
+3.2 Analisis Data
+Unit analisis adalah lokasi terdampak dalam satu kejadian atau studi kasus bencana. Setiap lokasi menjadi satu alternatif dalam matriks keputusan. Definisi operasional kriteria ditunjukkan pada Tabel 3.
+Tabel 3. Definisi operasional kriteria
+Kode
+Kriteria
+Definisi Operasional
+Jenis
+Satuan/Skala
+C1
+Jumlah masyarakat terdampak yang
+membutuhkan
+bantuan logistik
+Jumlah orang pada lokasi yang tercatat membutuhkan pemenuhan bantuan logistik dalam periode penilaian.
+Benefit
+Orang
+C2
+Tingkat urgensi kebutuhan bantuan
+Kemendesakan pemenuhan kebutuhan dasar berdasarkan ketersediaan kebutuhan, kondisi kritis, dan batas waktu aman yang dikonfirmasi petugas.
+Benefit
+Skala 1-5
+C3
+Jarak geografis
+Jarak Haversine antara satu sumber bantuan aktif dan lokasi terdampak.
+Cost
+Kilometer
+Kriteria C1 tidak boleh mencampurkan korban meninggal, korban luka, pengungsi, dan seluruh penduduk terdampak tanpa aturan. Nilai yang digunakan harus merujuk pada kelompok yang benar-benar membutuhkan bantuan logistik dalam periode penilaian. Tingkat urgensi pada C2 memerlukan indikator yang dapat diterapkan secara konsisten. Rancangan awal skala urgensi ditunjukkan pada Tabel 4 dan dikonstruksi berdasarkan indikator standar penanganan darurat bencana serta regulasi BNPB.
+Tabel 4. Rancangan skala tingkat urgensi
+Nilai
+Kategori
+Rancangan Indikator
+1
+Rendah
+Kebutuhan dasar masih tersedia lebih dari 72 jam dan distribusi dapat ditunda tanpa risiko langsung.
+2
+Sedang-rendah
+Kebutuhan dasar diperkirakan tersedia 48-72 jam; belum terdapat kekurangan utama.
+3
+Sedang
+Ketersediaan diperkirakan tidak mencukupi dalam 24-48 jam atau mulai terdapat kekurangan kebutuhan tertentu.
+4
+Tinggi
+Satu atau lebih kebutuhan dasar utama tidak tersedia atau persediaan diperkirakan kurang dari 24 jam.
+5
+Sangat tinggi
+Kondisi kritis; kebutuhan dasar utama tidak tersedia dan keterlambatan bantuan berpotensi memperburuk keselamatan atau kesehatan masyarakat.
+Bobot kriteria dikumpulkan menggunakan skala kepentingan 1 sampai 5. Jika terdapat lebih dari satu penilai, nilai kepentingan dirata-ratakan per kriteria. Hasil rata-rata dinormalisasi agar total bobot sama dengan satu. Data selanjutnya diperiksa untuk menemukan nilai kosong, koordinat di luar rentang, satuan yang tidak konsisten, duplikasi alternatif, dan nilai rata-rata nol yang dapat menyebabkan kesalahan perhitungan EDAS.
+Tabel 5. Rancangan data penelitian
+Data
+Sumber
+Penggunaan
+Identitas dan koordinat sumber bantuan
+Website resmi BPBD Kota Semarang / Peta Digital
+Titik awal perhitungan Haversine
+Identitas dan koordinat lokasi terdampak
+Laporan kebencanaan website BPBD Kota Semarang / Peta Digital
+Alternatif dan titik tujuan Haversine
+Jumlah masyarakat yang membutuhkan bantuan
+Laporan rekapitulasi bencana website BPBD Kota Semarang / BNPB
+Nilai C1
+Tingkat urgensi
+Klasifikasi laporan bencana berdasarkan indikator regulasi BNPB
+Nilai C2
+Bobot kriteria
+Sintesis literatur & regulasi logistik kebencanaan BNPB
+Tingkat kepentingan dalam EDAS
+3.3 Metode yang Diusulkan
+Metode yang diusulkan mengintegrasikan algoritma Haversine sebagai penghasil nilai jarak dan EDAS sebagai metode pemeringkatan. Alur lengkap ditunjukkan pada Gambar 1.
+Gambar 1. Alur metode yang diusulkan
+Tahapan penerapan metode adalah sebagai berikut:
+Petugas memilih satu sumber bantuan aktif dan memasukkan data alternatif lokasi terdampak.
+Sistem memeriksa kelengkapan data, rentang koordinat, nilai kriteria, dan bobot.
+Koordinat derajat dikonversi menjadi radian dan jarak setiap alternatif dihitung menggunakan Haversine.
+Nilai C1, C2, dan C3 disusun menjadi matriks keputusan EDAS.
+Sistem menghitung solusi rata-rata setiap kriteria.
+PDA dan NDA dihitung sesuai jenis kriteria benefit atau cost.
+PDA dan NDA dikalikan dengan bobot, dijumlahkan, dan dinormalisasi.
+Appraisal score dihitung dan alternatif diurutkan dari nilai terbesar ke terkecil.
+Sistem menampilkan nilai antara dan hasil urutan agar proses dapat ditelusuri.
+Perhitungan diverifikasi dan bobot diuji melalui beberapa skenario sensitivitas.
+Fungsi minimum prototipe meliputi pengelolaan data sumber bantuan, lokasi terdampak, nilai kriteria dan bobot; perhitungan Haversine; perhitungan EDAS; tampilan rincian nilai; pemeringkatan; serta penyajian hasil analisis sensitivitas. Platform teknis dapat ditentukan pada tahap implementasi tanpa mengubah model perhitungan penelitian. 
+3.4 Metode Pengujian
+Pengujian dirancang untuk membedakan kebenaran implementasi, fungsi sistem, kestabilan hasil, dan kesesuaian rekomendasi. Rancangan pengujian ditunjukkan pada Tabel 6.
+Tabel 6. Rancangan pengujian
+Pengujian
+Tujuan
+Prosedur
+Kriteria Penerimaan
+Verifikasi
+Haversine
+Memastikan perhitungan jarak benar
+Bandingkan hasil sistem dengan perhitungan manual/alat bantu pada koordinat yang sama.
+Perbedaan hanya berasal dari pembulatan dan tidak mengubah interpretasi jarak.
+Verifikasi
+EDAS
+Memastikan seluruh tahap EDAS benar
+Bandingkan AV, PDA, NDA, SP, SN, NSP, NSN, AS, dan urutan dengan perhitungan pembanding.
+Nilai sesuai dalam toleransi pembulatan dan urutan alternatif sama.
+Pengujian fungsional
+Memastikan fungsi prototipe bekerja
+Uji input valid, nilai kosong, koordinat di luar rentang, bobot tidak berjumlah satu, proses hitung, dan tampilan hasil.
+Setiap skenario
+menghasilkan respons sesuai rancangan dan kesalahan masukan ditangani.
+Analisis sensitivitas
+Menilai
+ketergantungan hasil terhadap bobot
+Ubah bobot setiap kriteria sebesar
+10 persen dan 20 persen, normalisasi ulang, lalu bandingkan urutan.
+Perubahan hasil dapat dijelaskan berdasarkan perubahan bobot dan karakteristik data.
+Pengujian penerimaan pengguna (UAT)
+Menilai keterbacaan antarmuka dan kegunaan sistem rekomendasi
+Pengguna atau operator meninjau antarmuka prototipe, alur simulasi masukan data, visualisasi posisi, transparansi nilai rincian perhitungan, dan kejelasan urutan prioritas rekomendasi berdasarkan skenario tugas.
+Fitur sistem dapat dioperasikan dengan baik, informasi peringkat tersaji secara transparan, dan masukan pengguna terdokumentasi untuk penyempurnaan sistem.
+Pengujian metode menjadi fokus utama penelitian untuk memastikan keandalan komputasi dan fungsionalitas perangkat lunak sesuai kaidah rekayasa perangkat lunak. Verifikasi numerik dilakukan untuk membuktikan kebenaran matematis implementasi algoritma Haversine dan metode EDAS terhadap lembar kerja perhitungan manual pembanding. Analisis sensitivitas digunakan untuk menguji ketahanan dan stabilitas urutan prioritas rekomendasi terhadap fluktuasi bobot kriteria. Sedangkan pengujian fungsional black-box dan pengujian penerimaan pengguna (UAT) dilakukan guna memastikan seluruh fitur sistem berjalan sesuai spesifikasi kebutuhan perangkat lunak.
+DAFTAR PUSTAKA
+Alturki, I., & Lee, S. (2024). A systematic survey of multicriteria models in humanitarian logistics. International Journal of Disaster Risk Reduction, 102, Article 104209. https://doi.org/10.1016/j.ijdrr.2023.104209
+Badan Nasional Penanggulangan Bencana. (2010). Peraturan Kepala Badan Nasional Penanggulangan Bencana Nomor 18 Tahun 2010 tentang pedoman distribusi bantuan logistik dan peralatan penanggulangan bencana. https://bnpb.go.id/storage/app/media/uploads/24/peraturan-kepala/2010/perka-18-tahun-2010-tentang-pedoman-distribusi-bantuan-logistik-dan-peralatan-penanggulangan-bencana.pdf
+Badan Nasional Penanggulangan Bencana. (2018). Peraturan Badan Nasional Penanggulangan Bencana Nomor 4 Tahun 2018 tentang sistem manajemen logistik dan peralatan. https://jdih.bnpb.go.id/dokumen/Peraturan/perban-nomor-4-tahun-2018
+Bhakuni, M. S., Bhakuni, P., & Das, A. (2025). Stability analysis of multi-criteria decision making techniques for relief centre location selection: A safety-centric relocation model with cost considerations. Engineering Applications of Artificial Intelligence, 144, Article 109932. https://doi.org/10.1016/j.engappai.2024.109932
+Carnero Quispe, M. F., Couto, A. S., de Brito Junior, I., Cunha, L. R. A., Siqueira, R. M., & Yoshizaki, H. T. Y. (2024). Humanitarian logistics prioritization models: A systematic literature review. Logistics, 8(2), Article 60. https://doi.org/10.3390/logistics8020060
+Dendeng, R. F. M., Santa, K., & Kumajas, S. C. (2026). A WebGIS-based location analysis system for disaster mitigation in Bitung City using ray casting and Haversine formula. Sinkron: Jurnal dan Penelitian Teknik Informatika, 10(3), 1630–1637. https://doi.org/10.33395/sinkron.v10i3.16164
+Huang, L., Mao, L.-X., Chen, Y., & Liu, H.-C. (2022). New method for emergency decision making with an integrated regret theory-EDAS method in 2-tuple spherical linguistic environment. Applied Intelligence, 52(11), 13296–13309. https://doi.org/10.1007/s10489-021-02875-5
+International Software Testing Qualifications Board. (2024). Certified tester foundation level syllabus (Version 4.0.1). https://istqb.org/wp-content/uploads/2024/11/ISTQB_CTFL_Syllabus_v4.0.1.pdf
+Kenap, A. A., Raranta, A. A., & Maramis, G. D. P. (2026). Location based disaster response prioritization using AHP and GIS: Prioritas respon bencana berbasis lokasi menggunakan AHP dan GIS. Academia Open, 11(1). https://doi.org/10.21070/acopen.11.2026.13447
+Keshavarz Ghorabaee, M., Zavadskas, E. K., Olfat, L., & Turskis, Z. (2015). Multi-criteria inventory classification using a new method of evaluation based on distance from average solution (EDAS). Informatica, 26(3), 435–451. https://doi.org/10.15388/Informatica.2015.57
+National Oceanic and Atmospheric Administration. (2026a, September 23). What is latitude? https://oceanservice.noaa.gov/facts/latitude.html
+National Oceanic and Atmospheric Administration. (2026b, September 23). What is longitude? https://oceanservice.noaa.gov/facts/longitude.html
+Nawazish, M., Padhi, S. S., & Cheng, T. C. E. (2022). Stratified delivery aid plans for humanitarian aid distribution centre selection. Computers & Industrial Engineering, 171, Article 108451. https://doi.org/10.1016/j.cie.2022.108451
+PDSI Pusdatinkom BNPB. (2025, May 28). Buku data bencana Indonesia tahun 2024. Pusdatinkom BNPB. https://www.bnpb.go.id/buku/buku-data-bencana-indonesia-tahun-2024
+Pressman, R. S., & Maxim, B. R. (2020). Software engineering: A practitioner's approach (9th ed.). McGraw-Hill Education.
+Republik Indonesia. (2007). Undang-Undang Republik Indonesia Nomor 24 Tahun 2007 tentang Penanggulangan Bencana. https://peraturan.bpk.go.id/Details/39901/uu-no-24-tahun-2007
+Sutedi, A., Julianto, I. T., & Fitriani, L. (2024). Segmentasi wilayah terdampak bencana berdasarkan fitur geo-posisi. Jurnal Teknologi Informasi dan Ilmu Komputer, 11(4), 797–804. https://doi.org/10.25126/jtiik.1148557
+Torkayesh, A. E., Deveci, M., Karagoz, S., & Antucheviciene, J. (2023). A state-of-the-art survey of evaluation based on distance from average solution (EDAS): Developments and applications. Expert Systems with Applications, 221, Article 119724. https://doi.org/10.1016/j.eswa.2023.119724
