@@ -16,14 +16,14 @@ class CalculationController extends Controller
     protected $edasService;
 
     // Inject Services (Memanggil tukang hitung yang sudah dibuat)
-    public function _construct(HaversineService $haversineService, EdasService $edasService) {
+    public function __construct(HaversineService $haversineService, EdasService $edasService) {
         $this->haversineService = $haversineService;
         $this->edasService = $edasService;
     }
 
     public function calculateEdas() {
         // 1. Ambil data gudang (origin) yang sedang aktif
-        $origin = origin::where('is_active', true)->first();
+        $origin = Origin::where('is_active', true)->first();
         if (!$origin) {
             return response()->json(['message' => 'Tidak ada gudang / sumber bantuan aktif'], 400);
         }
